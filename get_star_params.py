@@ -9,12 +9,13 @@ from astroARIADNE.star import Star
 import traceback
 import pandas as pd
 DEFAULT_MODELS = [
-    "phoenix",
-    "btsettl",
-    "btnextgen",
-    "btcond",
-    "kurucz",
-    "ck04",
+    'phoenix',
+    'btsettl',
+    'btnextgen',
+    'btcond',
+    'kurucz',
+    'ck04',
+    #  'bosz'
 ]
 
 
@@ -126,7 +127,7 @@ def parse_args():
         "-n",
         "--samples",
         type=int,
-        default=10000,
+        default=100000,
         help="Number of posterior samples"
     )
 
