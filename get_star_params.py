@@ -65,6 +65,8 @@ def create_fitter(star_name: str, ra: str, dec: str, gaia_id: int | None,
             'rad': ('default'),
             'Av': ('fixed', 0.0)
         }
+        print('Set priors from table')
+        print(fitter.prior_setup)
     else:
         fitter.prior_setup = {
             'teff': ('default'),
@@ -141,6 +143,7 @@ def parse_args():
 def main():
     args = parse_args()
     params = pd.read_csv('714_params.csv')
+    params = params[params.HD == args.star]
     if (args.env == "cluster"):
         output_dir = Path(f"/srv/scratch/fontanee/ariadne_results/{args.star}")
     else:
