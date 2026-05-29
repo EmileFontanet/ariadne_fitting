@@ -2,7 +2,7 @@
 
 import argparse
 from pathlib import Path
-
+import os
 from astroquery.simbad import Simbad
 from astroARIADNE.fitter import Fitter
 from astroARIADNE.star import Star
@@ -93,16 +93,7 @@ def create_fitter(star_name: str, ra: str, dec: str, gaia_id: int | None,
     return fitter
 
 
-def run_fit(star_name: str, n_samples: int, prior_table=None):
-
-    output_dir = Path('results/'+star_name)
-    best_fit_file = output_dir / "best_fit_average.dat"
-
-    if best_fit_file.exists():
-        print(f"{star_name}: fit already exists")
-        return
-
-    output_dir.mkdir(exist_ok=True)
+def run_fit(star_name: str, n_samples: int, prior_table=None, output_dir=Path("results")):
 
     print(f"Querying SIMBAD for {star_name}")
     ra, dec, gaia_id = query_star(star_name)
@@ -137,14 +128,33 @@ def parse_args():
         help="Number of posterior samples"
     )
 
+    parser.add_argument(
+        "--env",
+        type=str,
+        default="local",
+        help="Environment (local, cluster)"
+    )
+
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
     params = pd.read_csv('714_params.csv')
+    if (args.env == "cluster"):
+        output_dir = Path(f"/srv/scratch/fontanee/ariadne_results/{args.star}")
+    else:
+        output_dir = Path('results/'+args.star)
+    best_fit_file = output_dir / "best_fit_average.dat"
+
+    if best_fit_file.exists():
+        print(f"{args.star}: fit already exists")
+        return
+
+    output_dir.mkdir(exist_ok=True)
     try:
-        run_fit(args.star, args.samples, prior_table=params)
+        run_fit(args.star, args.samples,
+                prior_table=params, output_dir=output_dir)
     except Exception as exc:
         print(f"Error processing {args.star}: {exc}")
         traceback.print_exc()
